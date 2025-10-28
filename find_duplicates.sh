@@ -76,6 +76,10 @@ fi
 # -type f : only files (follows symlinks by default)
 # -not -path "$dupes_dir/*" : ignore files inside the dupes_dir
 # -print0 : NUL-delimited for safety
+#
+# Note: Temporarily disable errexit for the while loop due to bash 5.2+ behavior
+# where process substitution with 'set -e' can cause premature loop termination
+set +e
 while IFS= read -r -d '' file; do
   # Compute SHA-256; take only the hash
   # On macOS, 'shasum -a 256' is commonly available; on Linux, 'sha256sum' is common.
@@ -121,6 +125,7 @@ while IFS= read -r -d '' file; do
     ((moved_count++))
   fi
 done < <(find "$scan_dir" -type f -not -path "$dupes_dir/*" -print0)
+set -e
 
 # Print summary
 echo ""
